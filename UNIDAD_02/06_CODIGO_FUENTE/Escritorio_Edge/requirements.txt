@@ -1,0 +1,13 @@
+# Paquetes del sistema para OCR de PDF escaneados: poppler-utils, tesseract-ocr, tesseract-ocr-spa.
+Eel>=0.16.0
+pytesseract>=0.3.10
+opencv-python-headless>=4.8.0.76
+pycryptodome>=3.18.0
+requests>=2.31.0
+mysql-connector-python>=8.0.33
+bcrypt>=4.0.0
+pyotp>=2.9.0
+Pillow>=10.0.0
+PyPDF2>=3.0.0
+watchdog>=3.0.0
+pywin32; sys_platform == "win32"

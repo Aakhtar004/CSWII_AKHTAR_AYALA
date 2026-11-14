@@ -1,0 +1,100 @@
+// RF-19
+
+import { NextAuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import { prisma } from "./prisma";
+import bcrypt from "bcrypt";
+import { verifyRecaptchaToken } from "./recaptcha";
+import { verifyTotpCode } from "./totp";
+
+export const authOptions: NextAuthOptions = {
+  providers: [
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "email", placeholder: "admin@empresa.com" },
+        password: { label: "Password", type: "password" },
+        captchaToken: { label: "CAPTCHA", type: "text" },
+        totpCode: { label: "Código Authenticator", type: "text" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error("Credenciales inválidas.");
+        }
+
+        const captcha = await verifyRecaptchaToken(credentials.captchaToken);
+        if (!captcha.ok) {
+          throw new Error(captcha.message || "CAPTCHA inválido.");
+        }
+
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email }
+        });
+
+        if (!user) {
+          throw new Error("El usuario no existe.");
+        }
+
+        if (!user.isActive) {
+          throw new Error("Esta cuenta ha sido desactivada.");
+        }
+
+        if (user.role !== "ADMIN" && user.accessRole === "DESKTOP_SCANNER") {
+          throw new Error("Esta cuenta es solo para la aplicación de escritorio.");
+        }
+
+        const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
+
+        if (!isPasswordValid) {
+          throw new Error("Contraseña incorrecta.");
+        }
+
+        const authenticatorRequired = process.env.AUTHENTICATOR_REQUIRED === "true";
+
+        if (user.twoFactorEnabled) {
+          const isTotpValid = await verifyTotpCode(user.twoFactorSecret, credentials.totpCode);
+
+          if (!isTotpValid) {
+            throw new Error("Código de Authenticator inválido o vencido.");
+          }
+        } else if (authenticatorRequired) {
+          throw new Error("Authenticator es obligatorio para esta cuenta. Solicita al administrador activarlo.");
+        }
+
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          accessRole: user.accessRole,
+        };
+      }
+    })
+  ],
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 días.
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.role = user.role;
+        token.accessRole = user.accessRole;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (token && session.user) {
+        session.user.id = token.id;
+        session.user.role = token.role;
+        session.user.accessRole = token.accessRole;
+      }
+      return session;
+    }
+  },
+  pages: {
+    signIn: "/", // La página principal funcionará como inicio de sesión del administrador.
+  },
+  secret: process.env.NEXTAUTH_SECRET,
+};

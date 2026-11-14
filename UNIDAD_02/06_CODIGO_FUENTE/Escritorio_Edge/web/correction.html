@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corrección Manual — DocuZen</title>
+    <script type="text/javascript" src="/eel.js"></script>
+    <style>
+        :root {
+            /* Fuentes tipográficas */
+            --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            
+            /* Tema claro */
+            --bg-app: #f5f5f7;
+            --bg-card: #ffffff;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --text-muted: #afafb6;
+            
+            --accent: #0071e3;
+            --accent-hover: #0077ed;
+            --accent-bg: rgba(0, 113, 227, 0.08);
+            
+            --success: #34c759;
+            --success-bg: rgba(52, 199, 89, 0.12);
+            --success-text: #1d753c;
+            
+            --warning: #ff9500;
+            --warning-bg: rgba(255, 149, 0, 0.12);
+            --warning-text: #b25900;
+            
+            --danger: #ff3b30;
+            --danger-bg: rgba(255, 59, 48, 0.12);
+            --danger-text: #c91d13;
+            
+            --info-bg: rgba(0, 113, 227, 0.05);
+            --info-text: #0071e3;
+            
+            --shadow-card: 0 4px 18px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+            --input-bg: #ffffff;
+            --input-border: #d2d2d7;
+            --input-focus-border: #0071e3;
+            
+            --radius-sm: 8px;
+            --radius-md: 12px;
+        }
+
+
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: background-color 0.2s ease, border-color 0.2s ease; }
+        
+        body { 
+            font-family: var(--font-sans); 
+            background: var(--bg-app); 
+            color: var(--text-primary); 
+            font-size: 14px; 
+            -webkit-font-smoothing: antialiased;
+            padding: 20px;
+        }
+
+        .card { 
+            background: var(--bg-card); 
+            border-radius: var(--radius-md); 
+            border: 1px solid var(--border-color); 
+            padding: 24px; 
+            max-width: 600px; 
+            margin: 20px auto; 
+            box-shadow: var(--shadow-card);
+        }
+
+        h2 { 
+            font-size: 18px; 
+            font-weight: 600; 
+            margin-bottom: 8px; 
+            color: var(--text-primary); 
+            letter-spacing: -0.3px;
+        }
+
+        p { 
+            font-size: 13px; 
+            color: var(--text-secondary); 
+            margin-bottom: 18px; 
+            line-height: 1.4;
+        }
+
+        .form-group { margin-bottom: 16px; }
+        
+        .form-group label { 
+            display: block; 
+            font-size: 12px; 
+            font-weight: 600; 
+            color: var(--text-primary); 
+            margin-bottom: 6px; 
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .form-group input { 
+            width: 100%; 
+            padding: 10px 12px; 
+            background: var(--input-bg);
+            border: 1px solid var(--input-border); 
+            border-radius: var(--radius-sm); 
+            font-size: 14px; 
+            color: var(--text-primary);
+            transition: all 0.15s ease;
+        }
+
+        .form-group input:focus { 
+            outline: none; 
+            border-color: var(--input-focus-border); 
+            box-shadow: 0 0 0 3px var(--accent-bg); 
+        }
+
+        .btn { 
+            padding: 10px 16px; 
+            border: none; 
+            border-radius: var(--radius-sm); 
+            font-size: 13px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: all 0.15s ease;
+            width: 100%;
+        }
+
+        .btn-primary { 
+            background: var(--accent); 
+            color: white; 
+        }
+
+        .btn-primary:hover { 
+            background: var(--accent-hover); 
+        }
+
+        .alert { 
+            padding: 12px 16px; 
+            border-radius: var(--radius-sm); 
+            font-size: 13px; 
+            margin-bottom: 16px; 
+            line-height: 1.45;
+            border: 1px solid transparent;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .alert-error { 
+            background: var(--danger-bg); 
+            color: var(--danger-text); 
+            border-color: rgba(255, 59, 48, 0.15);
+        }
+
+        .alert-success { 
+            background: var(--success-bg); 
+            color: var(--success-text); 
+            border-color: rgba(52, 199, 89, 0.15);
+        }
+
+        .alert-info { 
+            background: var(--info-bg); 
+            color: var(--info-text); 
+            border-color: rgba(0, 113, 227, 0.1);
+        }
+
+        .file-info { 
+            background: var(--bg-app); 
+            padding: 16px; 
+            border-radius: var(--radius-sm); 
+            margin-bottom: 18px; 
+            font-size: 13px; 
+            line-height: 1.6;
+            border: 1px solid var(--border-color);
+        }
+
+        .file-info strong {
+            color: var(--text-primary);
+        }
+
+        .file-info span {
+            color: var(--text-secondary);
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>📝 Corrección Manual de Documento</h2>
+        <p>La IA no pudo clasificar este documento automáticamente. Corrige el nombre y será re-evaluado por el Escudo de Privacidad.</p>
+
+        <div class="alert alert-info">
+            ⚠️ Al enviar, el documento pasará nuevamente por el motor de seguridad para asegurar que la encriptación se aplique correctamente.
+        </div>
+
+        <div class="file-info">
+            <strong>Archivo original:</strong> <span id="originalName">—</span><br>
+            <strong>Error:</strong> <span id="errorMessage">—</span>
+        </div>
+
+        <div id="resultMessage" class="hidden"></div>
+
+        <form onsubmit="handleCorrection(event)">
+            <div class="form-group">
+                <label>Nuevo Nombre de Archivo (con extensión)</label>
+                <input type="text" id="newFileName" required placeholder="PROY-001_Contabilidad_2024.pdf">
+            </div>
+            <button type="submit" class="btn btn-primary">Enviar Corrección</button>
+        </form>
+    </div>
+
+    <script>
+        // Obtiene los datos del documento desde los parámetros de la URL.
+        const params = new URLSearchParams(window.location.search);
+        const docId = params.get('id');
+        const originalName = params.get('name');
+        const error = params.get('error');
+
+        document.getElementById('originalName').textContent = originalName || '—';
+        document.getElementById('errorMessage').textContent = error || '—';
+
+        // RF-11
+        async function handleCorrection(e) {
+            e.preventDefault();
+            const newName = document.getElementById('newFileName').value.trim();
+            if (!newName) return;
+
+            const result = await eel.correct_document(docId, newName)();
+            const msgEl = document.getElementById('resultMessage');
+            msgEl.classList.remove('hidden');
+
+            if (result.success) {
+                msgEl.className = 'alert alert-success';
+                msgEl.textContent = '✅ Documento corregido y re-evaluado exitosamente.';
+                setTimeout(() => window.close(), 2000);
+            } else {
+                msgEl.className = 'alert alert-error';
+                msgEl.textContent = '❌ ' + (result.error || 'Error al corregir.');
+            }
+        }
+    </script>
+</body>
+</html>

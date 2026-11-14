@@ -1,0 +1,43 @@
+docs/
+tests/
+
+# Entornos virtuales
+venv/
+env/
+.env
+
+# Archivos compilados de Python (Bytecode)
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Archivos generados por PyInstaller (Empaquetado)
+build/
+*.egg-info/
+# Nota: build.spec sí debe subirse, pero las carpetas build/ y dist/ no.
+
+# Las pruebas automatizadas y sus informes son parte del repositorio.
+!docs/
+docs/*
+!docs/pruebas/
+docs/pruebas/*
+!docs/pruebas/*.md
+!tests/
+tests/*
+!tests/test_rf*.py
+
+# Almacenamiento Dinámico y Bases de Datos Locales
+# Según la arquitectura, la carpeta data debe ser ignorada.
+data/
+*.db
+*.sqlite
+*.sqlite3
+
+# Archivos de caché de Eel / Web
+web/__pycache__/
+.web_cache/
+
+# Logs y archivos temporales del sistema operativo
+*.log
+.DS_Store
+Thumbs.db

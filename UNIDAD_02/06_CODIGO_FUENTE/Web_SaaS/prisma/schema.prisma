@@ -1,0 +1,110 @@
+// Este es el archivo de esquema de Prisma.
+// Conectado a la base de datos MySQL de producción (gobernanza_db).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                     String                  @id @default(uuid())
+  name                   String
+  email                  String                  @unique
+  password               String
+  role                   String                  @default("EMPLOYEE") // "ADMIN" o "EMPLOYEE".
+  isActive               Boolean                 @default(true) // Para eliminación lógica.
+  accessRole             String                  @default("DESKTOP_SCANNER") // "WEB_VIEWER" o "DESKTOP_SCANNER".
+  documentAccessMode     String                  @default("PASSWORD_SCOPED") // "GLOBAL" o "PASSWORD_SCOPED".
+  twoFactorEnabled       Boolean                 @default(false)
+  twoFactorSecret        String?                 @db.Text
+  twoFactorConfirmedAt   DateTime?
+  workspaces             Workspace[]             @relation("UserWorkspaces")
+  documentPasswordGrants DocumentPasswordGrant[]
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+}
+
+model Workspace {
+  id                     String                  @id @default(uuid())
+  name                   String
+  cloudPath              String // Por ejemplo, "Google Drive: /Contabilidad" o "LOCAL: ~/Docs".
+  cloudFolderId          String? // ID de carpeta de Google Drive para carga directa mediante API.
+  cloudRefreshToken      String?                 @db.Text // Token OAuth de renovación cifrado del proveedor de nube.
+  defaultPassword        String // Contraseña base segura predeterminada.
+  users                  User[]                  @relation("UserWorkspaces")
+  policies               SecurityPolicy[]
+  documentPasswordGrants DocumentPasswordGrant[]
+  auditLogs              AuditLog[]
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+}
+
+model SecurityPolicy {
+  id                     String                  @id @default(uuid())
+  type                   String // "SEMANTIC" (texto/OCR) o "VISUAL" (coincidencia de plantillas).
+  target                 String // Palabra clave, frase exacta o identificador de plantilla visual.
+  password               String // Contraseña de reemplazo criptográfico.
+  priority               Int                     @default(0) // Se usa para resolver conflictos (visión > texto).
+  workspaceId            String? // Enlace opcional a un espacio de trabajo específico.
+  workspace              Workspace?              @relation(fields: [workspaceId], references: [id])
+  documentPasswordGrants DocumentPasswordGrant[]
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+}
+
+model DocumentPasswordGrant {
+  id               String          @id @default(uuid())
+  userId           String
+  workspaceId      String
+  securityPolicyId String?
+  credentialKey    String
+  sourceType       String // "DEFAULT" o "POLICY".
+  label            String
+  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace        Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  securityPolicy   SecurityPolicy? @relation(fields: [securityPolicyId], references: [id], onDelete: Cascade)
+  createdAt        DateTime        @default(now())
+
+  @@unique([userId, credentialKey])
+  @@index([workspaceId])
+  @@index([securityPolicyId])
+}
+
+model AuditLog {
+  id          String     @id @default(uuid())
+  userId      String?
+  userName    String? // Campo desnormalizado para mejorar consultas históricas.
+  action      String // Por ejemplo, "SCAN_UPLOADED", "ENCRYPTION_APPLIED", "LOGIN" o "USER_CREATED".
+  details     String     @db.Text
+  status      String // "SUCCESS" o "FAILURE".
+  workspaceId String?
+  workspace   Workspace? @relation(fields: [workspaceId], references: [id])
+  createdAt   DateTime   @default(now())
+}
+
+// Configuración global del sistema (registro único administrado por el administrador).
+model Config {
+  id                     String   @id @default(uuid())
+  compressionEnabled     Boolean  @default(false) // Activa la compresión PDF antes de la carga a la nube.
+  compressionThresholdMb Int      @default(10) // Umbral en MB a partir del cual se intenta comprimir.
+  deleteLocalAfterUpload Boolean  @default(false) // Elimina la copia local tras confirmar la carga.
+  cloudProvider          String   @default("MANUAL") // "GOOGLE_DRIVE", "DROPBOX" o "MANUAL".
+  cloudCredentials       String?  @db.Text // Credenciales o tokens cifrados de la cuenta de nube (JSON).
+  updatedAt              DateTime @updatedAt
+  createdAt              DateTime @default(now())
+}
+
+// Campos de nomenclatura definidos por el administrador para clasificar documentos automáticamente.
+model NomenclatureField {
+  id         String   @id @default(uuid())
+  fieldName  String // Por ejemplo, "Código de Proyecto", "Disciplina" o "Fecha".
+  fieldOrder Int      @default(0) // Orden de los campos al construir el nombre del archivo.
+  isRequired Boolean  @default(true)
+  separator  String   @default("_") // Carácter separador entre campos.
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
